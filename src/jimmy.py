@@ -60,7 +60,7 @@ def q_learning(q_table, actions, world_grid, hyperparameter, num_episodes):
 
 
 # Training
-learning_time = q_learning(q_table, actions, world_grid, num_episodes=1000)
+learning_time = q_learning(q_table, actions, world_grid, hyperparameter, num_episodes=1000)
 
 
 # Ausgabe der gelernten Q-Tabelle
