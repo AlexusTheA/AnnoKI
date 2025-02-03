@@ -3,7 +3,7 @@ import numpy as np
 import random
 import time
 import os
-import utils.tool_functions as tf
+import tool_functions_experiment as tf
 
 # Start- und Zielzustand
 start = (2, 18)
@@ -59,11 +59,11 @@ for episode in range(num_episodes):
     done = False
     steps = 0
 
-    tf.initialize_state(state, previous_state, q_table, actions)
+    tf.initialize_state(state, previous_state, q_table, actions, grid_size)
     #print(f"Episode {episode+1} gestartet. Startzustand: {state}")
 
     while not done:
-        valid_actions = tf.get_valid_actions(state, previous_state, actions)
+        valid_actions = tf.get_valid_actions(state, previous_state, actions, grid_size)
 
         # Epsilon-greedy Action Selection
         if random.uniform(0, 1) < epsilon:
@@ -76,7 +76,7 @@ for episode in range(num_episodes):
 
         move = actions[action]
         next_state = (state[0] + move[0], state[1] + move[1])
-        tf.initialize_state(next_state, previous_state, q_table, actions)
+        tf.initialize_state(next_state, previous_state, q_table, actions, grid_size)
 
         # Belohnung
         reward = (100 if next_state == goal else -1) + (-100 if any(tuple == next_state for tuple in pit) else 0)

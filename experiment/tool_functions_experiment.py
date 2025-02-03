@@ -4,7 +4,6 @@ import random
 import time
 import os
 
-
 # Farben für die Darstellung
 COLORS = {
     'start': '\033[93m',  # Gelb
@@ -43,16 +42,18 @@ def generate_maze(width, height):
     
     return grid, (start_x, start_y), (end_x, end_y)
 
-
-def state_to_index(state, grid_size):
-    return state[0] * grid_size[1] + state[1]
-
-def is_valid_move(state, action, grid_size):
+def is_valid_move(state, action, previous_state, grid_size):
     new_state = (state[0] + action[0], state[1] + action[1])
-    return 0 <= new_state[0] < grid_size[0] and 0 <= new_state[1] < grid_size[1]
+    if new_state == previous_state:
+        return False
+    return 0 <= new_state[0] <= grid_size[0] and 0 <= new_state[1] <= grid_size[1]  # Dynamisches Grid
 
-def get_valid_actions(state, actions, grid_size):
-    return [a for a, move in actions.items() if is_valid_move(state, move, grid_size)]
+def get_valid_actions(state, previous_state, actions, grid_size):
+    return [a for a, move in actions.items() if is_valid_move(state, move, previous_state, grid_size)]
+
+def initialize_state(state, previous_state, q_table, actions, grid_size):
+    if state not in q_table:
+        q_table[state] = {action: 0 for action in get_valid_actions(state, previous_state, actions, grid_size)}
 
 # Funktion zur Darstellung des Grids
 def draw_grid(q_table, start, goal, grid_size, pit):
@@ -108,5 +109,3 @@ def clear_console():
         os.system('cls')
     else:                # Für Linux, macOS, etc.
         os.system('clear')
-
-version = '0.1'
