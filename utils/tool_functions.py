@@ -4,10 +4,6 @@ import random
 import time
 import os
 
-# Start- und Zielzustand
-start = (2, 18)
-goal = (19, 2)
-grid_size = (50, 50)
 
 # Farben für die Darstellung
 COLORS = {
@@ -50,18 +46,28 @@ def generate_maze(width, height):
 
 
 # Hilfsfunktionen
-def is_valid_move(state, action, previous_state):
+# def is_valid_move(state, action, previous_state):
+#     new_state = (state[0] + action[0], state[1] + action[1])
+#     if new_state == previous_state:
+#         return False
+#     return 0 <= new_state[0] <= grid_size[0] and 0 <= new_state[1] <= grid_size[1]  # Dynamisches Grid
+
+# def get_valid_actions(state, previous_state, actions):
+#     return [a for a, move in actions.items() if is_valid_move(state, move, previous_state)]
+
+# def initialize_state(state, previous_state, q_table, actions):
+#     if state not in q_table:
+#         q_table[state] = {action: 0 for action in get_valid_actions(state, previous_state, actions)}
+
+def state_to_index(state, grid_size):
+    return state[0] * grid_size[1] + state[1]
+
+def is_valid_move(state, action, grid_size):
     new_state = (state[0] + action[0], state[1] + action[1])
-    if new_state == previous_state:
-        return False
-    return 0 <= new_state[0] <= grid_size[0] and 0 <= new_state[1] <= grid_size[1]  # Dynamisches Grid
+    return 0 <= new_state[0] < grid_size[0] and 0 <= new_state[1] < grid_size[1]
 
-def get_valid_actions(state, previous_state, actions):
-    return [a for a, move in actions.items() if is_valid_move(state, move, previous_state)]
-
-def initialize_state(state, previous_state, q_table, actions):
-    if state not in q_table:
-        q_table[state] = {action: 0 for action in get_valid_actions(state, previous_state, actions)}
+def get_valid_actions(state, actions, grid_size):
+    return [a for a, move in actions.items() if is_valid_move(state, move, grid_size)]
 
 # Funktion zur Darstellung des Grids
 def draw_grid(q_table, start, goal, grid_size, pit):
@@ -117,3 +123,5 @@ def clear_console():
         os.system('cls')
     else:                # Für Linux, macOS, etc.
         os.system('clear')
+
+version = '0.1'
