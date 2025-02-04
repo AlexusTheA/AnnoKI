@@ -3,7 +3,6 @@ import random
 import os
 
 
-
 # Farben für die Darstellung
 COLORS = {
     'start': '\033[93m',  # Gelb
@@ -117,37 +116,18 @@ def clear_console():
 def goal(requirments, states, FLAGS):
     if requirments <= states or FLAGS == 0:
         return True
-    
-def minimal(states, minimal_steps):
-    if minimal_steps > states:
-            minimal_steps = states
-    return minimal_steps
 
 def reward(requirements, resources, FLAGS):
     reward_value = -1
 
-    conditions = len(requirements)  
+    conditions = [4, 2, 1]  
 
-    for i in range(conditions):
-        a = (1 << conditions - i -1)
-        if (FLAGS & a) and resources[i] >= requirements[i]:
-            reward_value += 100   
-            a = ~(1 << conditions - i)
-            FLAGS &= ~a
-
-    if FLAGS == 0:
-        reward_value += 500
+    for bit in conditions:
+        if (FLAGS & bit) and resources[0] <= requirements["goal"][0]:
+            reward_value += 100       
+            FLAGS &= ~bit             
 
     return reward_value, FLAGS
 
-
-def timeline(q_table, minimal_steps):
-    state = 0
-
-    txt = np.array(["None", "House", "Wood", "Fish", "Sheep", "Cloth"])
-
-    for _ in range(minimal_steps):
-        print(state, txt[np.argmax(np.ma.masked_equal(q_table[state], 0))])
-        state += 1
 
 version = '0.1'
