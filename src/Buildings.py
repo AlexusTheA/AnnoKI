@@ -1,12 +1,5 @@
 import numpy as np
 
-building_cost = np.array([[0, 0]    #None
-                          [2, 0],   #House
-                          [0, 3],   #Wood
-                          [5, 3],   #Fish
-                          [4, 2],   #Sheep
-                          [3, 2]])  #Workshop
-
 building_id = np.array([])
 
 
@@ -26,18 +19,19 @@ class Building:
         if current_time - self.time_since_last_production >= self.interval:
             resources[self.produces] += self.production_amount
             self.time_since_last_production = current_time  # Produktion zurücksetzen
-
-    def can_remove(self, current_time):
-        """Ein Gebäude kann nur entfernt werden, wenn es mindestens einmal produziert hat."""
+    
+    """
+   def can_remove(self, current_time):
+        ""Ein Gebäude kann nur entfernt werden, wenn es mindestens einmal produziert hat.""
         return (current_time - self.time_since_last_production) % self.interval == 0
     
     def remove(self, resources, buildings):
-        """Entfernt das Gebäude, wenn es produzieren konnte."""
+        ""Entfernt das Gebäude, wenn es produzieren konnte.""
 
         resources[0b1] += building_cost[id][0]
         resources[0b10] += building_cost[id][1]
         buildings[self.produces].pop(self.id)
-        del self
+        del self"""
 
 
 
@@ -101,60 +95,28 @@ create = np.array([
     lambda id: Workshop(id)
 ])
 
+class GameSimulation():
 
-def can_build(resources):
-    buildable = np.array([])
-    # Houses
-    i = 0
-    for _ in building_cost:
-        a = resources[0b1] // building_cost[i][0]
-        b = resources[0b10] // building_cost[i][1]
-        i += 1
-        buildable.append(a if a <= b else b)
-
-
-def can_build(resources):
-    buildable = np.array([])
-    
-    for _ in building_cost:
-        if
-
-def build(resources, buildings, id):
-    resources[0b1] -= building_cost[id][0]
-    resources[0b10] -= building_cost[id][1]
-    buildings[id].append(create[id](len(buildings[id])))
-    
-
-    
-def check_removable_buildings(self, current_time):
-    """Überprüft, welche Gebäude entfernt werden können."""
-    removable_buildings = {}
-
-    for building_type, buildings in self.buildings.items():
-        # Liste der Gebäude, die entfernt werden können
-        removable_buildings[building_type] = [building for building in buildings if building.can_remove(current_time)]
-    
-    return removable_buildings
-
-
-
-
-
-
-
-
-class Simulation:
+    """
+    def can_build(resources):
+        buildable = np.array([])
+        # Houses
+        i = 0
+        for _ in building_cost:
+            a = resources[0b1] // building_cost[i][0]
+            b = resources[0b10] // building_cost[i][1]
+            i += 1
+            buildable.append(a if a <= b else b)"""
     def __init__(self):
         # Ressourcen am Start
-        self.resources = np.array(24, 15, 6, 4, 0, 0)
-            
+        # einwohner, holz, werkzeug, fisch, wolle, kleidung
+        self.resources = np.array([24, 15, 6, 4, 0, 0])
 
-        
         # Gebäude in einem Dictionary speichern
         self.buildings = [
-            [House(0, 8), House(1, 8), House(2, 8),],  # 3 Häuser
-            [Woodcutter(0)],  # 1 Holzfäller
-            [Fisher(0)],  # 1 Fischer
+            [House(0, 0, 8), House(1, 0, 8), House(2, 0, 8),],  # 3 Häuser
+            [Woodcutter(0, 0)],  # 1 Holzfäller
+            [Fisher(0, 0)],  # 1 Fischer
             [],
             [],
         ]
@@ -162,14 +124,60 @@ class Simulation:
         # Zeit-Tracking
         self.time_elapsed = -1 
 
+    def can_build(self, building):
+        return (building.wood_cost >= self.resources[1]) and (building.tool_cost >= self.resources[2])
 
-    def run(self):
+    
+    def build(self, building):
+        if self.can_build(building):
+            if isinstance(building, House):
+                self.buildings[0].append(building)
+            elif isinstance(building, Woodcutter):
+                self.buildings[1].append(building)
+            elif isinstance(building, Fisher):
+                self.buildings[2].append(building)
+            elif isinstance(building, Sheep):
+                self.buildings[3].append(building)
+            elif isinstance(building, Workshop):
+                self.buildings[4].append(building)
 
-        while(self.time_elapsed <= 300):
-            
-            #Produzieren
-            for bulding_list in self.buildings:
-                for building in bulding_list:
-                    building.produce(self.resources, self.time_elapsed)
+    # checkt ressourcen, baut das gebäude, aktualisiert ressourcen
+    def run(self, actions, state):
+        match actions:
+            case 1:
+                self.build(House(len(self.buildings[0]), state, 1))
+            case 2:
+                self.build(Woodcutter(len(self.buildings[1]), state))
+            case 3:
+                self.build(Fisher(len(self.buildings[2]), state))
+            case 4:
+                self.build(Sheep(len(self.buildings[3]), state))
+            case 5:
+                self.build(Workshop(len(self.buildings[4]), state))
+            case _:
+                pass
+        self.produce_all(state)
+        
+    def produce_all(self, state):
+        for x in range(len(self.buildings)):
+            for y in self.buildings[x]:
+                y.produce(self.resources, state)
 
-            #
+        
+
+        
+    def check_removable_buildings(self, current_time):
+        """Überprüft, welche Gebäude entfernt werden können."""
+        removable_buildings = {}
+
+        for building_type, buildings in self.buildings.items():
+            # Liste der Gebäude, die entfernt werden können
+            removable_buildings[building_type] = [building for building in buildings if building.can_remove(current_time)]
+        
+        return removable_buildings
+
+
+test = GameSimulation()
+for i in range(300):
+    test.run(5, i)
+    print(test.resources)
