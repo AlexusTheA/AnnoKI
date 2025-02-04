@@ -8,7 +8,7 @@
 
 
 #### Infos für mich
-kompilieren von c libraries für python
+kompilieren von C++ libraries für python
 
     gcc -shared -o [mylib].so -fPIC [mylib].c
 
