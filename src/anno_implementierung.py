@@ -16,6 +16,10 @@ hyperparameter = {
     "gamma": 0.9,      # Discount-Faktor
     "epsilon": 0.1    # Explorationsrate
 }
+
+#Flags für die Goals
+FLAGS = 0b111
+
 # Aktionen: Up, Down, Left, Right
 actions = np.array(0) + np.array(1, 2, 3, 4, 5)
 
@@ -23,7 +27,7 @@ actions = np.array(0) + np.array(1, 2, 3, 4, 5)
 q_table = np.zeros((requirments["grid_size"][0] * requirments["grid_size"][1], len(actions)))
 
 
-def q_learning(q_table, actions, world_grid, hyperparameter, num_episodes):
+def q_learning(q_table, actions, world_grid, hyperparameter, num_episodes, resources):
     grid_size = world_grid["grid_size"]
     start = world_grid["start"]
     goal = world_grid["goal"]
@@ -46,13 +50,13 @@ def q_learning(q_table, actions, world_grid, hyperparameter, num_episodes):
             move = actions[action]
             next_state += state
             # Belohnung
-            reward = reward()
+            reward, FLAGS = reward(FLAGS)
             # Q-Learning-Update
             best_next_action = np.max(q_table[next_state, actions])
             q_table[state, action] += alpha * (reward + gamma * best_next_action - q_table[state, action])
             state = next_state
             steps += 1
-            if goal():
+            if tf.goal(requirments, state, resources):
                 done = True
     end_time = time.time()
     return (end_time - start_time)
@@ -75,6 +79,3 @@ print(f"Gesamtlaufzeit: {learning_time:.2f} Sekunden")
 tf.draw_grid(q_table, requirments["start"], requirments["goal"], requirments["grid_size"], [])
 
 
-def goal(requirments, states, resources):
-    if requirments["states"] <= states or (resources[0] <= requirments["goal"][0] and resources[2] <= requirments["goal"][1] and resources[4] <= requirments["goal"][2]):
-        return True

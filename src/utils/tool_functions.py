@@ -112,4 +112,22 @@ def clear_console():
     else:                # Für Linux, macOS, etc.
         os.system('clear')
 
+
+def goal(requirments, states, resources):
+    if requirments["states"] <= states or (resources[0] <= requirments["goal"][0] and resources[2] <= requirments["goal"][2] and resources[4] <= requirments["goal"][2]):
+        return True
+
+def reward(requirements, resources, state, FLAGS):
+    reward_value = -1
+
+    conditions = [4, 2, 1]  
+
+    for bit in conditions:
+        if (FLAGS & bit) and resources[0] <= requirements["goal"][0]:
+            reward_value += 100       
+            FLAGS &= ~bit             
+
+    return reward_value, FLAGS
+
+
 version = '0.1'
