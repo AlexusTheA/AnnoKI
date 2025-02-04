@@ -1,5 +1,5 @@
 import numpy as np
-
+import time
 building_id = np.array([])
 
 
@@ -19,7 +19,7 @@ class Building:
         if current_time - self.time_since_last_production >= self.interval:
             resources[self.produces] += self.production_amount
             self.time_since_last_production = current_time  # Produktion zurücksetzen
-    
+
     """
    def can_remove(self, current_time):
         ""Ein Gebäude kann nur entfernt werden, wenn es mindestens einmal produziert hat.""
@@ -48,6 +48,9 @@ class House(Building):
         if self.pop < self.limit:
             super().produce(resources, current_time)
 
+    def __str__(self):
+        return "House"
+
 class Fisher(Building):
     def __init__(self, id, current_time):
         super().__init__(id, wood_cost=5, tool_cost=3, interval=90, produces=0b11, production_amount=1, current_time = current_time)
@@ -58,14 +61,23 @@ class Fisher(Building):
             self.production_amount *= -1
             resources[self.produces] += 1 if a > 0 else 2
             self.time_since_last_production = current_time  # Produktion zurücksetzen
+    
+    def __str__(self):
+        return "Fisher"
 
 class Woodcutter(Building):
     def __init__(self, id, current_time):
         super().__init__(id, wood_cost=0, tool_cost=3, interval=40, produces=0b1, production_amount=2, current_time = current_time)
 
+    def __str__(self):
+        return "Woodcutter"
+
 class Sheep(Building):
     def __init__(self, id, current_time):
         super().__init__(id, wood_cost=4, tool_cost=2, interval=30, produces=0b100, production_amount=1, current_time = current_time)
+
+    def __str__(self):
+        return "Sheep"
 
 class Workshop(Building):
     def __init__(self, id, current_time):
@@ -80,6 +92,9 @@ class Workshop(Building):
                 super().produce(resources, current_time)
                 resources[0b100] -= 2
                 self.starttime = 30
+
+    def __str__(self):
+        return "Workshop"
 
 
 
@@ -125,21 +140,31 @@ class GameSimulation():
         self.time_elapsed = -1 
 
     def can_build(self, building):
-        return (building.wood_cost >= self.resources[1]) and (building.tool_cost >= self.resources[2])
+        return (building.wood_cost <= self.resources[1]) and (building.tool_cost <= self.resources[2])
 
     
     def build(self, building):
         if self.can_build(building):
             if isinstance(building, House):
                 self.buildings[0].append(building)
+                self.resources[1] -= building.wood_cost
+                self.resources[2] -= building.tool_cost
             elif isinstance(building, Woodcutter):
                 self.buildings[1].append(building)
+                self.resources[1] -= building.wood_cost
+                self.resources[2] -= building.tool_cost
             elif isinstance(building, Fisher):
                 self.buildings[2].append(building)
+                self.resources[1] -= building.wood_cost
+                self.resources[2] -= building.tool_cost
             elif isinstance(building, Sheep):
                 self.buildings[3].append(building)
+                self.resources[1] -= building.wood_cost
+                self.resources[2] -= building.tool_cost
             elif isinstance(building, Workshop):
                 self.buildings[4].append(building)
+                self.resources[1] -= building.wood_cost
+                self.resources[2] -= building.tool_cost
 
     # checkt ressourcen, baut das gebäude, aktualisiert ressourcen
     def run(self, actions, state):
@@ -176,8 +201,13 @@ class GameSimulation():
         
         return removable_buildings
 
-
+start_time = time.time()
 test = GameSimulation()
 for i in range(300):
-    test.run(5, i)
+    test.run(1, i)
     print(test.resources)
+    for i in range(len(test.buildings)):
+        for j in range(len(test.buildings[i])):
+            print(test.buildings[i][j])
+end_time = time.time()
+print(end_time - start_time)
