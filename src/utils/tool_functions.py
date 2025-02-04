@@ -58,10 +58,13 @@ def draw_grid(q_table, start, goal, grid_size, pit):
     
     # Pfad ermitteln
     current_state = start
-    current_state_idx = state_to_index(start)
+    current_state_idx = state_to_index(start, grid_size)
     path = [current_state]
     while current_state != goal:
-        action = np.argmax(q_table[current_state_idx])
+        print(current_state)
+        print(current_state_idx)
+        action = np.argmax(np.ma.masked_equal(q_table[current_state_idx], 0))
+        print(action)
         if action == 0:
             next_state = (current_state[0] - 1, current_state[1])
         elif action == 1:
@@ -81,7 +84,7 @@ def draw_grid(q_table, start, goal, grid_size, pit):
         if next_state == goal:
             break
         current_state = next_state
-        current_state_idx = state_to_index(next_state)
+        current_state_idx = state_to_index(current_state, grid_size)
     
     # Grid füllen
     for i in range(grid_size[0]):
