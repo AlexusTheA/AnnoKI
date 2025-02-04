@@ -1,1 +1,1 @@
-pip install numpy ctype
+pip install numpy

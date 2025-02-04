@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import utils.module_name as mn
 building_id = np.array([])
 
 
@@ -201,13 +202,15 @@ class GameSimulation():
         
         return removable_buildings
 
-start_time = time.time()
-test = GameSimulation()
-for i in range(300):
-    test.run(1, i)
-    print(test.resources)
-    for i in range(len(test.buildings)):
-        for j in range(len(test.buildings[i])):
-            print(test.buildings[i][j])
-end_time = time.time()
-print(end_time - start_time)
+# start_time = time.time()
+# test = GameSimulation()
+# for i in range(300):
+#     test.run(1, i)
+#     print(test.resources)
+#     for i in range(len(test.buildings)):
+#         for j in range(len(test.buildings[i])):
+#             print(test.buildings[i][j])
+# end_time = time.time()
+# print(end_time - start_time)
+print(mn.some_fn_python_name(2, 2)
+)
