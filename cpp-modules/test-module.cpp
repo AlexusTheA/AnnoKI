@@ -7,5 +7,5 @@ float some_fn(float arg1, float arg2){
 
 PYBIND11_MODULE(module_name, handle){
     handle.doc() = "This is the module docs.";
-    handle.def("some_fn_python_name");
+    handle.def("some_fn_python_name", &some_fn);
 }

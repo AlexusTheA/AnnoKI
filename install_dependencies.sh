@@ -1,1 +1,1 @@
-pip install numpy pybind11
+pip install numpy

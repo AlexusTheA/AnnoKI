@@ -1,14 +1,24 @@
 # Anno KI
 ## Required Libraries:
 1. numpy
-2. ctype (in future Updates hopefully)
 > Execute to install all dependencies
     
     .\install_dependecies.sh
 
 
-#### Infos für mich
-kompilieren von C++ libraries für python
+#### Information for C++ modules
+##### only on Linux
+> to compile c++ modules create a folder in cpp-modules called build 
 
-    gcc -shared -o [mylib].so -fPIC [mylib].c
+    /cpp-modules/build/
 
+> execute the cmake while beeing in the build folder with:
+
+    cmake ..
+
+> followed by:
+
+    make
+
+> drag the ".cpython-312-x86_64-linux-gnu" file into utils to use it properly
+> to change the name of the module change it in the CMakeLists.txt
