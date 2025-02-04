@@ -8,7 +8,7 @@ requirments = {
     "states" : 300,
     "grid_size": (300, 6),  # 2x2 Grid
     "start": 0,
-    "goal":  (48, 10, 3)
+    "goal":  (48, 0, 0, 10, 0, 3)
 } 
 
 hyperparameter = {
