@@ -8,6 +8,9 @@
 
 #### Information for C++ modules
 ##### only on Linux
+> clone the pybind repo into cpp-modules
+
+    git clone https://github.com/pybind/pybind11.git
 > to compile c++ modules create a folder in cpp-modules called build 
 
     /cpp-modules/build/
