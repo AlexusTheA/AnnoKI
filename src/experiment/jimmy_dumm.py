@@ -8,7 +8,7 @@ import tool_functions_experiment as tf
 # Start- und Zielzustand
 start = (2, 18)
 goal = (19, 2)
-grid_size = (50, 50)
+grid_size = (20, 20)
 
 # Farben für die Darstellung
 COLORS = {
