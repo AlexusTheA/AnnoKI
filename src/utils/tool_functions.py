@@ -123,7 +123,7 @@ def minimal(states, minimal_steps):
             minimal_steps = states
     return minimal_steps
 
-def reward(requirements, resources, FLAGS):
+def reward_bin(requirements, resources, FLAGS, action):
     reward_value = -1
 
     conditions = len(requirements)  
@@ -131,12 +131,34 @@ def reward(requirements, resources, FLAGS):
     for i in range(conditions):
         a = (1 << conditions - i -1)
         if (FLAGS & a) and resources[i] >= requirements[i]:
-            reward_value += 100   
-            a = ~(1 << conditions - i)
+            reward_value += 2 ** (conditions - i)
+            #a = ~(1 << conditions - i)
             FLAGS &= ~a
 
     if FLAGS == 0:
+        reward_value += 20
+
+    if action == 3:
+        reward_value -= 10
+
+    return reward_value, FLAGS
+
+def reward_var(requirements, resources, FLAGS, action):
+    reward_value = -100
+
+    conditions = len(requirements)  
+
+    for i in range(conditions):
+        if FLAGS[i] != 0 and resources[i] >= requirements[i]:
+            reward_value += 300
+            #a = ~(1 << conditions - i)
+            FLAGS[i] = 0
+
+    if FLAGS == 0:
         reward_value += 500
+
+    if action == 3:
+        reward_value -= 1000
 
     return reward_value, FLAGS
 
@@ -144,10 +166,25 @@ def reward(requirements, resources, FLAGS):
 def timeline(q_table, minimal_steps):
     state = 0
 
-    txt = np.array(["None", "House", "Wood", "Fish", "Sheep", "Cloth"])
+    txt = np.array(["None", "House", "Wood", "Tools", "Fish", "Sheep", "Cloth"])
 
     for _ in range(minimal_steps):
         print(state, txt[np.argmax(np.ma.masked_equal(q_table[state], 0))])
         state += 1
+
+
+if __name__ == "__main__":
+    requirments_steps = 300
+    states = 200
+    flag = 0b0100101
+    a = 0b0100000
+    requirments = np.array([0, 48, 0, 0, 10, 0, 3])
+    resources = np.array([0, 48, 30, 30, 5, 0, 3])
+    value, flag = reward_bin(requirments, resources, flag, 0)
+    print(value, bin(flag))
+    print(flag, a )
+    print(flag & a)
+    print(goal(requirments_steps, states, flag))
+
 
 version = '0.1'

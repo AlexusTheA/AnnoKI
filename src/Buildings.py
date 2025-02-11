@@ -46,7 +46,10 @@ class House(Building):
 
     def produce(self, resources, current_time):
         if self.pop < self.limit:
-            super().produce(resources, current_time)
+            if current_time - self.time_since_last_production >= self.interval:
+                resources[self.produces] += self.production_amount
+                self.time_since_last_production = current_time  # Produktion zurücksetzen
+                self.pop +=1
 
     def __str__(self):
         return "House"
@@ -125,7 +128,7 @@ class GameSimulation():
     def __init__(self):
         # Ressourcen am Start
         # einwohner, holz, werkzeug, fisch, wolle, kleidung
-        self.resources = np.array([0, 24, 30, 30, 4, 0, 0])
+        self.resources = np.array([0, 24, 1000, 1000, 4, 0, 0])
 
         # Gebäude in einem Dictionary speichern
         self.buildings = [
@@ -225,9 +228,12 @@ state = 0
 for _ in range(300):
     state +=1
     
-    Sim.run(5, state)
-    Sim.run(6, state)
+    Sim.run(2, state)
     print(Sim.resources)
+    print_a = []
+    for i in Sim.buildings:
+        print_a.append(len(i))
+    print(print_a)
     print(state)
     a.append(str(Sim.buildings[2][0].time_since_last_production) + "\n")
 
@@ -235,3 +241,23 @@ with open("ausgabe.txt", "w") as datei:
 
     datei.write(str(a))
 """
+
+if __name__ == "__main__":
+    Sim = GameSimulation()
+    Sim.resources = np.array([0, 0, 0, 0, 0, 0, 0])
+    Sim.buildings = [
+            [],
+            [House(0, 0, 0)],  # 3 Häuser
+            [Woodcutter(0, 0)],  # 1 Holzfäller
+            [],
+            [Fisher(0, 0)],  # 1 Fischer
+            [Sheep(0, 0)],
+            [Workshop(0, 0)],
+        ]
+    
+    state = 0
+    for i in range(300):
+        state +=1
+        print(f"{i} {Sim.resources}")
+        Sim.run(0, i)
+    print(Sim.resources)
