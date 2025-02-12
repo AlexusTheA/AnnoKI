@@ -32,10 +32,10 @@ q_table = np.zeros((requirments["grid_size"][0] * requirments["grid_size"][1], l
 
 
 def q_learning(q_table, actions, world_grid, hyperparameter,new_best, best, num_episodes):
-    grid_size = world_grid["grid_size"]
+    requirments_states = requirments["states"]
     start = world_grid["start"]
     next_state = 0
-    goal = world_grid["goal"]
+    goal = requirments["goal"]
     minimal_steps = 300
     
     
@@ -59,7 +59,7 @@ def q_learning(q_table, actions, world_grid, hyperparameter,new_best, best, num_
             Sim.run(action, state)
             next_state = state + 1
             # Belohnung
-            reward, flags = tf.reward_bin(requirments["goal"], Sim.resources, flags, action)
+            reward, flags = tf.reward_bin(goal, Sim.resources, flags, action)
             # Q-Learning-Update
             best_next_action = np.max(q_table[next_state, actions])
             q_table[state, action] += alpha * (reward + gamma * best_next_action - q_table[state, action])
@@ -83,18 +83,11 @@ def q_learning(q_table, actions, world_grid, hyperparameter,new_best, best, num_
 # Training
 learning_time, minimal_steps, best = q_learning(q_table, actions, requirments, hyperparameter, new_best, best, num_episodes=10000)
 
-"""
-# Ausgabe der gelernten Q-Tabelle
-for i in range(requirments["grid_size"][0]):
-    for j in range(requirments["grid_size"][1]):
-        state_idx = tf.state_to_index((i, j), requirments["grid_size"])
-        print(f"State ({i},{j}): {q_table[state_idx]}")
-"""
 # Laufzeit anzeigen
 print(f"Gesamtlaufzeit: {learning_time:.2f} Sekunden")
 
-#tf.draw_grid(q_table, requirments["start"], requirments["goal"], requirments["grid_size"], [])
 
+#Printen der Timeline
 tf.timeline(q_table, 200)
 flag = 0b0100101
 jetzt = 0
@@ -113,6 +106,8 @@ while(tf.goal(200, jetzt, flag) != True):
 print(Sim.resources)
 print(len(Sim.buildings[0]))
 
+
+#Txt output der Q-Tabelle
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 filename = f"liste_{timestamp}.txt"
 
