@@ -15,8 +15,8 @@ requirments = {
 requirments_states = requirments["states"]
 
 hyperparameter = {
-    "alpha": 0.1,      # Lernrate
-    "gamma": 0.9,      # Discount-Faktor
+    "alpha": 0.2,      # Lernrate
+    "gamma": 0.90,      # Discount-Faktor
     "epsilon": 0.1,    # Explorationsrate
 }
 

@@ -124,7 +124,7 @@ def minimal(states, minimal_steps):
     return minimal_steps
 
 def reward_bin(requirements, resources, FLAGS, action):
-    reward_value = -1
+    reward_value = -10
 
     conditions = len(requirements)  
 
@@ -136,10 +136,10 @@ def reward_bin(requirements, resources, FLAGS, action):
             FLAGS &= ~a
 
     if FLAGS == 0:
-        reward_value += 20
+        reward_value += 200
 
     if action == 3:
-        reward_value -= 10
+        reward_value -= 1000
 
     return reward_value, FLAGS
 
@@ -179,12 +179,10 @@ if __name__ == "__main__":
     flag = 0b0100101
     a = 0b0100000
     requirments = np.array([0, 48, 0, 0, 10, 0, 3])
-    resources = np.array([0, 48, 30, 30, 5, 0, 3])
+    resources = np.array([0, 48, 30, 30, 10, 0, 3])
     value, flag = reward_bin(requirments, resources, flag, 0)
     print(value, bin(flag))
-    print(flag, a )
-    print(flag & a)
-    print(goal(requirments_steps, states, flag))
+
 
 
 version = '0.1'
