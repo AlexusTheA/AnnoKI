@@ -3,7 +3,6 @@ import random
 import os
 
 
-
 # Farben für die Darstellung
 COLORS = {
     'start': '\033[93m',  # Gelb
@@ -117,72 +116,18 @@ def clear_console():
 def goal(requirments, states, FLAGS):
     if requirments <= states or FLAGS == 0:
         return True
-    
-def minimal(states, minimal_steps):
-    if minimal_steps > states:
-            minimal_steps = states
-    return minimal_steps
 
-def reward_bin(requirements, resources, FLAGS, action):
-    reward_value = -10
+def reward(requirements, resources, FLAGS):
+    reward_value = -1
 
-    conditions = len(requirements)  
+    conditions = [4, 2, 1]  
 
-    for i in range(conditions):
-        a = (1 << conditions - i -1)
-        if (FLAGS & a) and resources[i] >= requirements[i]:
-            reward_value += 2 ** (conditions - i)
-            #a = ~(1 << conditions - i)
-            FLAGS &= ~a
-
-    if FLAGS == 0:
-        reward_value += 200
-
-    if action == 3:
-        reward_value -= 1000
+    for bit in conditions:
+        if (FLAGS & bit) and resources[0] <= requirements["goal"][0]:
+            reward_value += 100       
+            FLAGS &= ~bit             
 
     return reward_value, FLAGS
-
-def reward_var(requirements, resources, FLAGS, action):
-    reward_value = -100
-
-    conditions = len(requirements)  
-
-    for i in range(conditions):
-        if FLAGS[i] != 0 and resources[i] >= requirements[i]:
-            reward_value += 300
-            #a = ~(1 << conditions - i)
-            FLAGS[i] = 0
-
-    if FLAGS == 0:
-        reward_value += 500
-
-    if action == 3:
-        reward_value -= 1000
-
-    return reward_value, FLAGS
-
-
-def timeline(q_table, minimal_steps):
-    state = 0
-
-    txt = np.array(["None", "House", "Wood", "Tools", "Fish", "Sheep", "Cloth"])
-
-    for _ in range(minimal_steps):
-        print(state, txt[np.argmax(np.ma.masked_equal(q_table[state], 0))])
-        state += 1
-
-
-if __name__ == "__main__":
-    requirments_steps = 300
-    states = 200
-    flag = 0b0100101
-    a = 0b0100000
-    requirments = np.array([0, 48, 0, 0, 10, 0, 3])
-    resources = np.array([0, 48, 30, 30, 10, 0, 3])
-    value, flag = reward_bin(requirments, resources, flag, 0)
-    print(value, bin(flag))
-
 
 
 version = '0.1'

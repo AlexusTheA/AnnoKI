@@ -1,61 +1,137 @@
 import numpy as np
+
+import random
 import time
+import utils.tool_functions as tf
+import Buildings as b
+from datetime import datetime
 
-q_table = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],      #House
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],      #Fisher
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],      #Woodcutter
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],      #Sheep
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])      #Cloth
+# Grid-World Definition
+requirments = {
+    "states" : 200,
+    "grid_size": (200, 6),  # 2x2 Grid
+    "start": 0,
+    "goal":  np.array([0, 48, 0, 0, 10, 0, 3])
+} 
+requirments_states = requirments["states"]
+
+hyperparameter = {
+    "alpha": 0.2,      # Lernrate
+    "gamma": 0.90,      # Discount-Faktor
+    "epsilon": 0.1,    # Explorationsrate
+}
+
+best = [0 for _ in range(501)]
+new_best = []
 
 
-q_table[:, 1]
+# Aktionen: Up, Down, Left, Right
+actions = np.concatenate(([0], [1, 2, 3, 4, 5, 6]))
+
+# Q-Table: (Zustände x Aktionen)
+q_table = np.zeros((requirments["grid_size"][0] * requirments["grid_size"][1], len(actions)))
 
 
-actions = np.array(0) + np.array(10, 11, 12, 13, 14) + np.array(20, 21, 22, 23, 24)
+def q_learning(q_table, actions, world_grid, hyperparameter,new_best, best, num_episodes):
+    requirments_states = requirments["states"]
+    start = world_grid["start"]
+    next_state = 0
+    goal = requirments["goal"]
+    minimal_steps = 300
+    
+    
+    alpha = hyperparameter["alpha"]
+    gamma = hyperparameter["gamma"]
+    start_time = time.time()
+    for episode in range(num_episodes):
+        epsilon = hyperparameter["epsilon"]
+        Sim = b.GameSimulation()
+        flags = 0b0100101
+        state = start
+        done = False
+        steps = 0
+        while not done:
+            # Epsilon-greedy Action Selection
+            if random.uniform(0, 1) < epsilon:
+                action = random.choice(actions)  # Exploration
+            else:
+                q_values = q_table[state, actions]
+                action = actions[np.argmax(q_values)]  # Exploitation
+            Sim.run(action, state)
+            next_state = state + 1
+            # Belohnung
+            reward, flags = tf.reward_bin(goal, Sim.resources, flags, action)
+            # Q-Learning-Update
+            best_next_action = np.max(q_table[next_state, actions])
+            q_table[state, action] += alpha * (reward + gamma * best_next_action - q_table[state, action])
+            collum = [state, action, Sim.resources.copy(), [len(i) for i in Sim.buildings]]
+            new_best.append(collum)
+            state = next_state
+            steps += 1
+            if tf.goal(requirments_states, state, flags):
+                
+                minimal_steps = tf.minimal(state, minimal_steps)
+                done = True
+
+        if len(new_best) < len(best):
+            best = new_best
+        new_best = []
+    end_time = time.time()
+    return (end_time - start_time), minimal_steps, best
 
 
-num_episodes = 1000
 
-start = 1
 
 # Training
-num_episodes = 10000
-start_time = time.time()
+learning_time, minimal_steps, best = q_learning(q_table, actions, requirments, hyperparameter, new_best, best, num_episodes=10000)
 
-for episode in range(num_episodes):
-    state = start
-    done = False
-    steps = 0
+# Laufzeit anzeigen
+print(f"Gesamtlaufzeit: {learning_time:.2f} Sekunden")
 
-    print(f"Episode {episode+1} gestartet. Startzustand: {state}")
 
-    while not done:
-       
-        # Epsilon-greedy Action Selection
-        if random.uniform(0, 1) < epsilon:
-            action = random.choice(valid_actions)  # Exploration
-            print(f"  Zufällige Aktion gewählt: {action}")
-        else:
-            q_values = q_table[state_idx, valid_actions]
-            action = valid_actions[np.argmax(q_values)]  # Exploitation
-            print(f"  Beste bekannte Aktion gewählt: {action}")
+#Printen der Timeline
+tf.timeline(q_table, 200)
+flag = 0b0100101
+jetzt = 0
+Sim = b.GameSimulation()
+while(tf.goal(200, jetzt, flag) != True):
+    print(jetzt)
+    print(Sim.resources)
+    print_a = []
+    for i in Sim.buildings:
+        print_a.append(len(i))
+    print(print_a)
+    Sim.run(np.argmax(np.ma.masked_equal(q_table[jetzt], 0)), jetzt )
+    reward1, flag = tf.reward_bin(requirments["goal"], Sim.resources, flag, np.argmax(np.ma.masked_equal(q_table[jetzt], 0)))
+    jetzt += 1
 
-        move = actions[action]
-        next_state = (state[0] + move[0], state[1] + move[1])
-        next_state_idx = state_to_index(next_state)
+print(Sim.resources)
+print(len(Sim.buildings[0]))
 
-        # Belohnung
-        reward = 10 if next_state == goal else -1
 
-        # Q-Learning-Update
-        best_next_action = np.max(q_table[next_state_idx, get_valid_actions(next_state)])
-        q_table[state_idx, action] += alpha * (reward + gamma * best_next_action - q_table[state_idx, action])
+#Txt output der Q-Tabelle
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+filename = f"liste_{timestamp}.txt"
 
-        print(f"    Von {state} nach {next_state} bewegt. Belohnung: {reward}")
+with open(filename, "w", encoding="utf-8") as file:
+    for x in best:
+        for i in x:
+            if isinstance(i, list):
+                file.write(f"{','.join(map(str, i))}    |")  # Liste als String formatieren
+            else:
+                file.write(f"{i}    |")
+        file.write("\n")
 
-        state = next_state
-        steps += 1
+print(f"Liste wurde in '{filename}' gespeichert.")
 
-        if state == goal:
-            done = True
-            print(f"Ziel erreicht in {steps} Schritten!\n")
+np.savetxt("q_table_matrix.txt", q_table, fmt="%.4f")  # Speichert die Tabelle mit 4 Nachkommastellen
+print("Q-Tabelle als Matrix gespeichert.")
+
+
+filename = "q_table_output.txt"
+
+with open(filename, "w", encoding="utf-8") as file:
+    for state, values in enumerate(q_table):
+        file.write(f"State {state}: {values}\n")
+
+print(f"Q-Tabelle wurde in '{filename}' gespeichert.")

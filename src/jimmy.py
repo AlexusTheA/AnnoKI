@@ -5,9 +5,9 @@ import utils.tool_functions as tf
 
 # Grid-World Definition
 world_grid = {
-    "grid_size": (50, 50),  # 2x2 Grid
+    "grid_size": (6, 6),  # 2x2 Grid
     "start": (0, 0),
-    "goal": (49, 49)
+    "goal": (5, 5)
 }
 hyperparameter = {
     "alpha": 0.1,      # Lernrate
@@ -71,3 +71,5 @@ for i in range(world_grid["grid_size"][0]):
 
 # Laufzeit anzeigen
 print(f"Gesamtlaufzeit: {learning_time:.2f} Sekunden")
+
+tf.draw_grid(q_table, world_grid["start"], world_grid["goal"], world_grid["grid_size"], [])
