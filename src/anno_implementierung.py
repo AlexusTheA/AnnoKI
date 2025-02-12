@@ -1,4 +1,5 @@
 import numpy as np
+
 import random
 import time
 import utils.tool_functions as tf
@@ -77,6 +78,7 @@ def q_learning(q_table, actions, world_grid, hyperparameter,new_best, best, num_
         new_best = []
     end_time = time.time()
     return (end_time - start_time), minimal_steps, best
+
 
 
 

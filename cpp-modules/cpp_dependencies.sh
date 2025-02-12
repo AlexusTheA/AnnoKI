@@ -1,0 +1,1 @@
+sudo apt install python-dev-is-python3 cmake make gcc g++ gdb

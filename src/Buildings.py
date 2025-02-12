@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import utils.module_name as mn
 building_id = np.array([])
 
 
@@ -19,7 +20,7 @@ class Building:
         if current_time - self.time_since_last_production >= self.interval:
             resources[self.produces] += self.production_amount
             self.time_since_last_production = current_time  # Produktion zurücksetzen
-        
+
     """
    def can_remove(self, current_time):
         ""Ein Gebäude kann nur entfernt werden, wenn es mindestens einmal produziert hat.""
@@ -59,8 +60,9 @@ class Woodcutter(Building):
         super().__init__(id, wood_cost=0, tool_cost=3, interval=40, produces=0b10, production_amount=2, current_time = current_time)
 
     def __str__(self):
+
         return "Woodcutter"
-    
+
 class Fisher(Building):
     def __init__(self, id, current_time):
         super().__init__(id, wood_cost=5, tool_cost=3, interval=90, produces=0b100, production_amount=1, current_time = current_time)
@@ -82,6 +84,9 @@ class Sheep(Building):
     def __str__(self):
         return "Sheep"
 
+    def __str__(self):
+        return "Sheep"
+
 class Workshop(Building):
     def __init__(self, id, current_time):
         super().__init__(id, wood_cost=3, tool_cost=2, interval=30, produces=0b110, production_amount=1, current_time = current_time)
@@ -96,6 +101,9 @@ class Workshop(Building):
                 resources[0b101] -= 2
                 self.starttime = 30
         
+    def __str__(self):
+        return "Workshop"
+
     def __str__(self):
         return "Workshop"
 
@@ -145,6 +153,7 @@ class GameSimulation():
         self.time_elapsed = -1 
 
     def can_build(self, building):
+
         return (building.wood_cost <= self.resources[2]) and (building.tool_cost <= self.resources[3])
 
     
@@ -194,8 +203,6 @@ class GameSimulation():
                 y.produce(self.resources, state)
 
         
-
-        
     def check_removable_buildings(self, current_time):
         """Überprüft, welche Gebäude entfernt werden können."""
         removable_buildings = {}
@@ -205,7 +212,6 @@ class GameSimulation():
             removable_buildings[building_type] = [building for building in buildings if building.can_remove(current_time)]
         
         return removable_buildings
-
 
 '''
 start_time = time.time()
